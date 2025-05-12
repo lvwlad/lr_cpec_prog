@@ -2,7 +2,7 @@
 #include <QUndoStack>
 #include <QAction>
 #include <QKeySequence>
-#include <QFontDialog>  // Для диалога выбора шрифта
+#include <QFontDialog>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     model = new GraphicModel(this);
@@ -48,7 +48,7 @@ void MainWindow::setupToolBar() {
     QAction* textAction = toolBar->addAction("Text");
     toolBar->addSeparator();
     QAction* colorAction = toolBar->addAction("Color");
-    QAction* fontAction = toolBar->addAction("Font");  // Кнопка "Шрифт"
+    QAction* fontAction = toolBar->addAction("Font");
     toolBar->addSeparator();
     QAction* deleteAction = toolBar->addAction("Delete");
     QAction* clearAction = toolBar->addAction("Clear");
@@ -63,7 +63,7 @@ void MainWindow::setupToolBar() {
     connect(trapezoidAction, &QAction::triggered, this, &MainWindow::onTrapezoidAction);
     connect(textAction, &QAction::triggered, this, &MainWindow::onTextAction);
     connect(colorAction, &QAction::triggered, this, &MainWindow::onColorAction);
-    connect(fontAction, &QAction::triggered, this, &MainWindow::onFontAction);  // Подключение слота для шрифта
+    connect(fontAction, &QAction::triggered, this, &MainWindow::onFontAction);
     connect(deleteAction, &QAction::triggered, this, &MainWindow::onDeleteAction);
     connect(clearAction, &QAction::triggered, this, &MainWindow::onClearAction);
 }
@@ -118,8 +118,10 @@ void MainWindow::onColorAction() {
 
 void MainWindow::onFontAction() {
     bool ok;
-    QFont font = QFontDialog::getFont(&ok, QFont("Sans Serif", 14), this, "Выберите шрифт");
+    QFont font = QFontDialog::getFont(&ok, controller->getCurrentFont(), this, "Выберите шрифт");
     if (ok) {
+        // Сохраняем шрифт в контроллере для новых текстов
+        controller->setCurrentFont(font);
         // Применяем шрифт к выделенным текстовым объектам
         for (Shape* shape : model->getShapes()) {
             if (shape->isSelected() && shape->getType() == ShapeType::Text) {
