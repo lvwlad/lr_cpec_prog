@@ -86,7 +86,7 @@ void Shape::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWi
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setPen(QPen(color, 2));
 
-    switch(type) {
+    switch (type) {
     case ShapeType::Line:
         painter->drawLine(startPos, endPos);
         break;
@@ -97,36 +97,51 @@ void Shape::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWi
         painter->drawEllipse(QRectF(startPos, endPos));
         break;
     case ShapeType::Text:
-        if (!text.isEmpty()) {
-            painter->setFont(font);  // Применяем выбранный шрифт
-            painter->setPen(Qt::red); // Устанавливаем цвет текста (для видимости)
-            painter->drawText(startPos, text); // Рисуем текст
-        } else {
-            painter->setPen(QPen(Qt::gray, 1, Qt::DashLine));
-            QRectF textRect = boundingRect();
-            painter->drawRect(textRect); // Рисуем рамку для пустого текста
+        if (!isEditing && !text.isEmpty()) {
+            painter->setFont(font);
+            QFontMetrics fm(font);
+            qreal pad = 4;
+            QRectF trRect(startPos.x() - pad,
+                          startPos.y() - fm.ascent() - pad,
+                          fm.horizontalAdvance(text) + pad*2,
+                          fm.height() + pad*2);
+            painter->drawText(trRect.topLeft() + QPointF(pad, pad + fm.ascent()), text);
         }
         break;
-    case ShapeType::Trapezoid:
-        // Код для трапеции (оставляем без изменений)
+    case ShapeType::Trapezoid: {
+        QRectF rect(startPos, endPos);
+        rect = rect.normalized();
+        qreal w = rect.width();
+        qreal h = rect.height();
+        // Определяем точки трапеции
+        QPointF p1(rect.left() + w * 0.2, rect.top());     // Верхняя левая
+        QPointF p2(rect.right() - w * 0.2, rect.top());    // Верхняя правая
+        QPointF p3(rect.right(), rect.bottom());           // Нижняя правая
+        QPointF p4(rect.left(), rect.bottom());            // Нижняя левая
+        QPolygonF poly;
+        poly << p1 << p2 << p3 << p4;
+        painter->setPen(QPen(color, 2));
+        painter->drawPolygon(poly);
         break;
     }
+    }
 
+    // рамка и «ручки» для выделения
     if (isSelected() || isEditing) {
         painter->setPen(QPen(Qt::blue, 1, Qt::DashLine));
-        QRectF rect = boundingRect();
-        painter->drawRect(rect);
+        QRectF br = boundingRect();
+        painter->drawRect(br);
+
         if (type != ShapeType::Text) {
             painter->setBrush(Qt::white);
             painter->setPen(QPen(Qt::black, 1));
             for (int i = 1; i <= 4; ++i) {
-                QRectF handle = getHandleRect(static_cast<ResizeHandle>(i));
-                painter->drawRect(handle);
+                QRectF h = getHandleRect(static_cast<ResizeHandle>(i));
+                painter->drawRect(h);
             }
         }
     }
 }
-
 
 Shape::ResizeHandle Shape::getResizeHandle(const QPointF& pos) const {
     if (type == ShapeType::Text) return None;
@@ -201,4 +216,3 @@ void Shape::mouseReleaseEvent(QGraphicsSceneMouseEvent* event) {
     currentHandle = None;
     QGraphicsItem::mouseReleaseEvent(event);
 }
-// shape.cpp (обновлённый метод paint)
