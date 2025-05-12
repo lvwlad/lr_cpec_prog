@@ -30,6 +30,7 @@ private slots:
     void onTextAction();
     void onTrapezoidAction();
     void onColorAction();
+    void onFontAction();  // Новый слот для изменения шрифта
     void onDeleteAction();
     void onClearAction();
 
