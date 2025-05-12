@@ -8,7 +8,70 @@
 
 namespace {
 
-// ... (остальные классы команд Undo/Redo остаются без изменений)
+// Добавление фигуры
+class AddShapeCmd : public QUndoCommand {
+public:
+    AddShapeCmd(GraphicModel* m, ShapeType t, const QPointF& p, const QColor& c)
+        : model(m), type(t), pos(p), col(c), shape(nullptr) {
+        setText("Add Shape");
+    }
+    void redo() override {
+        if (!shape) shape = model->addShape(type, pos, col);
+        else        model->addShape(shape);
+    }
+    void undo() override {
+        model->removeShape(shape);
+    }
+private:
+    GraphicModel* model;
+    ShapeType     type;
+    QPointF       pos;
+    QColor        col;
+    Shape*        shape;
+};
+
+// Удаление фигуры
+class RemoveShapeCmd : public QUndoCommand {
+public:
+    RemoveShapeCmd(GraphicModel* m, Shape* s)
+        : model(m), shape(s) {
+        setText("Remove Shape");
+        // запомним параметры для undo
+        type = shape->getType();
+        pos  = shape->pos();
+        col  = shape->getColor();
+        txt  = shape->getText();
+    }
+    void redo() override {
+        model->removeShape(shape);
+    }
+    void undo() override {
+        shape = model->addShape(type, pos, col);
+        if (type == ShapeType::Text)
+            shape->setText(txt);
+    }
+private:
+    GraphicModel* model;
+    Shape*        shape;
+    ShapeType     type;
+    QPointF       pos;
+    QColor        col;
+    QString       txt;
+};
+
+// Перемещение фигуры
+class MoveShapeCmd : public QUndoCommand {
+public:
+    MoveShapeCmd(Shape* s, const QPointF& from, const QPointF& to)
+        : shape(s), oldPos(from), newPos(to) {
+        setText("Move Shape");
+    }
+    void redo() override { shape->setPos(newPos); }
+    void undo() override { shape->setPos(oldPos); }
+private:
+    Shape*   shape;
+    QPointF  oldPos, newPos;
+};
 
 } // namespace
 
