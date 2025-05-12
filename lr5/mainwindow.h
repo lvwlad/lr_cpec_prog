@@ -28,7 +28,7 @@ private slots:
     void onRectAction();
     void onEllipseAction();
     void onTextAction();
-    void onTriangleAction();
+    void onTrapezoidAction();
     void onColorAction();
     void onDeleteAction();
     void onClearAction();
