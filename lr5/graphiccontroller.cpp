@@ -8,7 +8,7 @@
 
 namespace {
 
-// Добавление фигуры
+/// Добавление фигуры
 class AddShapeCmd : public QUndoCommand {
 public:
     AddShapeCmd(GraphicModel* m, ShapeType t, const QPointF& p, const QColor& c)
@@ -30,7 +30,7 @@ private:
     Shape*        shape;
 };
 
-// Удаление фигуры
+/// Удаление фигуры
 class RemoveShapeCmd : public QUndoCommand {
 public:
     RemoveShapeCmd(GraphicModel* m, Shape* s)
@@ -59,7 +59,7 @@ private:
     QString       txt;
 };
 
-// Перемещение фигуры
+/// Перемещение фигуры
 class MoveShapeCmd : public QUndoCommand {
 public:
     MoveShapeCmd(Shape* s, const QPointF& from, const QPointF& to)
@@ -85,6 +85,7 @@ GraphicController::GraphicController(GraphicModel* model,
     , undoStack(undoStack)
     , currentMode(EditorMode::Select)
     , currentColor(Qt::black)
+    , currentFont(QFont("Sans Serif", 14))  // Шрифт по умолчанию
     , currentShape(nullptr)
     , isDrawing(false)
     , movingShape(nullptr)
@@ -102,6 +103,14 @@ void GraphicController::setCurrentColor(const QColor& color) {
 
 QColor GraphicController::getCurrentColor() const {
     return currentColor;
+}
+
+void GraphicController::setCurrentFont(const QFont& font) {
+    currentFont = font;
+}
+
+QFont GraphicController::getCurrentFont() const {
+    return currentFont;
 }
 
 void GraphicController::changeSelectedItemsColor(const QColor& color) {
@@ -136,7 +145,7 @@ void GraphicController::mousePressed(const QPointF& pos) {
         }
 
         if (t == ShapeType::Text) {
-            // Ввод только текста, без выбора шрифта
+            // Ввод только текста
             bool txtOk;
             QString txt = QInputDialog::getText(nullptr, "Введите текст", "Текст:",
                                                 QLineEdit::Normal, "", &txtOk);
@@ -145,8 +154,7 @@ void GraphicController::mousePressed(const QPointF& pos) {
             undoStack->push(new AddShapeCmd(model, t, pos, currentColor));
             currentShape = model->getShapes().last();
             currentShape->setText(txt);
-            // Устанавливаем шрифт по умолчанию
-            currentShape->setFont(QFont("Sans Serif", 14));
+            currentShape->setFont(currentFont);  // Используем текущий шрифт
         } else {
             undoStack->push(new AddShapeCmd(model, t, pos, currentColor));
             currentShape = model->getShapes().last();
