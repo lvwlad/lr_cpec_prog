@@ -2,6 +2,7 @@
 #include <QUndoStack>
 #include <QAction>
 #include <QKeySequence>
+#include <QFontDialog>  // Для диалога выбора шрифта
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     model = new GraphicModel(this);
@@ -9,13 +10,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     undoAction = new QAction(tr("Undo"), this);
     undoAction->setShortcut(QKeySequence::Undo);
     undoAction->setEnabled(false);
-    connect(undoAction, &QAction::triggered,  undoStack, &QUndoStack::undo);
-    connect(undoStack,  &QUndoStack::canUndoChanged, undoAction, &QAction::setEnabled);
+    connect(undoAction, &QAction::triggered, undoStack, &QUndoStack::undo);
+    connect(undoStack, &QUndoStack::canUndoChanged, undoAction, &QAction::setEnabled);
     redoAction = new QAction(tr("Redo"), this);
     redoAction->setShortcut(QKeySequence::Redo);
     redoAction->setEnabled(false);
-    connect(redoAction, &QAction::triggered,  undoStack, &QUndoStack::redo);
-    connect(undoStack,  &QUndoStack::canRedoChanged, redoAction, &QAction::setEnabled);
+    connect(redoAction, &QAction::triggered, undoStack, &QUndoStack::redo);
+    connect(undoStack, &QUndoStack::canRedoChanged, redoAction, &QAction::setEnabled);
     controller = new GraphicController(model, undoStack, this);
 
     setupUI();
@@ -38,22 +39,16 @@ void MainWindow::setupUI() {
     addToolBar(Qt::LeftToolBarArea, toolBar);
 }
 
-void MainWindow::onTrapezoidAction() {
-    controller->setEditorMode(EditorMode::CreateTrapezoid);
-    view->setDragMode(QGraphicsView::NoDrag);
-}
-
 void MainWindow::setupToolBar() {
     QAction* selectAction = toolBar->addAction("Select");
     QAction* lineAction = toolBar->addAction("Line");
     QAction* rectAction = toolBar->addAction("Rectangle");
     QAction* ellipseAction = toolBar->addAction("Ellipse");
     QAction* trapezoidAction = toolBar->addAction("Trapezoid");
-    connect(trapezoidAction, &QAction::triggered, this, &MainWindow::onTrapezoidAction);
     QAction* textAction = toolBar->addAction("Text");
     toolBar->addSeparator();
     QAction* colorAction = toolBar->addAction("Color");
-    connect(colorAction, &QAction::triggered, this, &MainWindow::onColorAction);
+    QAction* fontAction = toolBar->addAction("Font");  // Кнопка "Шрифт"
     toolBar->addSeparator();
     QAction* deleteAction = toolBar->addAction("Delete");
     QAction* clearAction = toolBar->addAction("Clear");
@@ -65,8 +60,10 @@ void MainWindow::setupToolBar() {
     connect(lineAction, &QAction::triggered, this, &MainWindow::onLineAction);
     connect(rectAction, &QAction::triggered, this, &MainWindow::onRectAction);
     connect(ellipseAction, &QAction::triggered, this, &MainWindow::onEllipseAction);
+    connect(trapezoidAction, &QAction::triggered, this, &MainWindow::onTrapezoidAction);
     connect(textAction, &QAction::triggered, this, &MainWindow::onTextAction);
     connect(colorAction, &QAction::triggered, this, &MainWindow::onColorAction);
+    connect(fontAction, &QAction::triggered, this, &MainWindow::onFontAction);  // Подключение слота для шрифта
     connect(deleteAction, &QAction::triggered, this, &MainWindow::onDeleteAction);
     connect(clearAction, &QAction::triggered, this, &MainWindow::onClearAction);
 }
@@ -100,6 +97,11 @@ void MainWindow::onEllipseAction() {
     view->setDragMode(QGraphicsView::NoDrag);
 }
 
+void MainWindow::onTrapezoidAction() {
+    controller->setEditorMode(EditorMode::CreateTrapezoid);
+    view->setDragMode(QGraphicsView::NoDrag);
+}
+
 void MainWindow::onTextAction() {
     controller->setEditorMode(EditorMode::CreateText);
     view->setDragMode(QGraphicsView::NoDrag);
@@ -107,10 +109,23 @@ void MainWindow::onTextAction() {
 
 void MainWindow::onColorAction() {
     QColor color = QColorDialog::getColor(controller->getCurrentColor(),
-                                        this, "Select Color");
+                                        this, "Выберите цвет");
     if (color.isValid()) {
         controller->setCurrentColor(color);
         controller->changeSelectedItemsColor(color);
+    }
+}
+
+void MainWindow::onFontAction() {
+    bool ok;
+    QFont font = QFontDialog::getFont(&ok, QFont("Sans Serif", 14), this, "Выберите шрифт");
+    if (ok) {
+        // Применяем шрифт к выделенным текстовым объектам
+        for (Shape* shape : model->getShapes()) {
+            if (shape->isSelected() && shape->getType() == ShapeType::Text) {
+                shape->setFont(font);
+            }
+        }
     }
 }
 
