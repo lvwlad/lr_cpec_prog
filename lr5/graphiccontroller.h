@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QPointF>
 #include <QUndoStack>
+#include <QFont>
 #include "graphicmodel.h"
 #include "shape.h"
 
@@ -29,6 +30,9 @@ public:
     QColor getCurrentColor() const;
     void changeSelectedItemsColor(const QColor& color);
 
+    void setCurrentFont(const QFont& font);  // Новый метод
+    QFont getCurrentFont() const;           // Новый метод
+
     void mousePressed(const QPointF& pos);
     void mouseMoved(const QPointF& pos);
     void mouseReleased();
@@ -41,6 +45,7 @@ private:
     QUndoStack*   undoStack;
     EditorMode    currentMode;
     QColor        currentColor;
+    QFont         currentFont;  // Новая переменная для хранения шрифта
 
     // для создания
     Shape* currentShape;
