@@ -38,8 +38,8 @@ void MainWindow::setupUI() {
     addToolBar(Qt::LeftToolBarArea, toolBar);
 }
 
-void MainWindow::onTriangleAction() {
-    controller->setEditorMode(EditorMode::CreateTriangle);
+void MainWindow::onTrapezoidAction() {
+    controller->setEditorMode(EditorMode::CreateTrapezoid);
     view->setDragMode(QGraphicsView::NoDrag);
 }
 
@@ -48,8 +48,8 @@ void MainWindow::setupToolBar() {
     QAction* lineAction = toolBar->addAction("Line");
     QAction* rectAction = toolBar->addAction("Rectangle");
     QAction* ellipseAction = toolBar->addAction("Ellipse");
-    QAction* triangleAction = toolBar->addAction("Triangle");
-    connect(triangleAction, &QAction::triggered, this, &MainWindow::onTriangleAction);
+    QAction* trapezoidAction = toolBar->addAction("Trapezoid");
+    connect(trapezoidAction, &QAction::triggered, this, &MainWindow::onTrapezoidAction);
     QAction* textAction = toolBar->addAction("Text");
     toolBar->addSeparator();
     QAction* colorAction = toolBar->addAction("Color");
