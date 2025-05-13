@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     Database db;
-    if (!db.connectToDatabase("/home/vlad/external_database.db")) {
+    if (!db.connectToDatabase("/home/user/external_database.db")) {
         qCritical() << "Failed to connect to database!";
         return -1;
     }
