@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x><y>0</y><width>600</width><height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Поиск файлов</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <!-- фильтр + выбор папки -->
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLineEdit" name="filterEdit">
+        <property name="placeholderText">
+         <string>Введите фильтр (например, *.jpg)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="selectDirButton">
+        <property name="text"><string>Выбрать директорию</string></property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <!-- отображение выбранной папки -->
+    <item>
+     <widget class="QLineEdit" name="dirEdit">
+      <property name="readOnly"><bool>true</bool></property>
+     </widget>
+    </item>
+    <!-- запуск поиска -->
+    <item>
+     <widget class="QPushButton" name="searchButton">
+      <property name="text"><string>Начать поиск</string></property>
+     </widget>
+    </item>
+    <!-- список результатов -->
+    <item>
+     <widget class="QListWidget" name="fileList"/>
+    </item>
+    <!-- строка статуса -->
+    <item>
+     <widget class="QLabel" name="statusLabel">
+      <property name="text"><string>Ожидание...</string></property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
