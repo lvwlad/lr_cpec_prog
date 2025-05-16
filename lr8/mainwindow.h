@@ -46,7 +46,7 @@ private:
     Ui::MainWindow *ui;
     QThread *workerThread = nullptr;
     SearchTask *task = nullptr;
-    void clearupThread();
+    void cleanupThread();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
